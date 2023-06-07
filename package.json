@@ -2,7 +2,7 @@
 	"private": true,
 	"sideEffects": false,
 	"scripts": {
-		"build": "remix build",
+		"build": "prisma generate && remix build",
 		"dev": "remix dev",
 		"start": "remix-serve build",
 		"test:e2e:dev": "start-server-and-test dev http://localhost:3000 \"npx cypress open\"",
