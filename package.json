@@ -2,10 +2,11 @@
 	"private": true,
 	"sideEffects": false,
 	"scripts": {
-		"build": "prisma generate && remix build",
+		"build": "npm run setup && remix build",
 		"dev": "remix dev",
 		"start": "remix-serve build",
 		"test:e2e:dev": "start-server-and-test dev http://localhost:3000 \"npx cypress open\"",
+		"setup": "prisma generate && prisma migrate deploy && prisma db seed",
 		"typecheck": "tsc"
 	},
 	"dependencies": {
