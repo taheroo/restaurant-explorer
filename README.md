@@ -7,11 +7,11 @@ Additionally, users can view a list of restaurants they have previously rated.
 ## Preview
 
 You can visit the live site [here](https://restaurant-explorer-povpg4o6v-taheroo.vercel.app/).
-![usage example](https://github.com/taheroo/restaurant-explorer/blob/master/app/public/landing-page.jpg)
+![usage example](https://github.com/taheroo/restaurant-explorer/blob/master/public/landing-page.jpg)
 
 ## UML class diagram
 
-![usage example](https://github.com/taheroo/restaurant-explorer/blob/master/app/public/uml-class-diagram.png)
+![usage example](https://github.com/taheroo/restaurant-explorer/blob/master/public/uml-class-diagram.png)
 
 ## Development
 
