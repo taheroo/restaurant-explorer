@@ -6,8 +6,7 @@
 		"dev": "remix dev",
 		"start": "remix-serve build",
 		"test:e2e:dev": "start-server-and-test dev http://localhost:3000 \"npx cypress open\"",
-		"typecheck": "tsc",
-		"postinstall": "prisma generate"
+		"typecheck": "tsc"
 	},
 	"dependencies": {
 		"@prisma/client": "^4.15.0",
