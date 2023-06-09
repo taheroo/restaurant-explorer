@@ -6,19 +6,46 @@ Additionally, users can view a list of restaurants they have previously rated.
 
 ## Preview
 
-You can visit the live site [here](https://restaurant-explorer-povpg4o6v-taheroo.vercel.app/).
+To see the live version of the application, visit the [Restaurant Explorer site](https://restaurant-explorer-povpg4o6v-taheroo.vercel.app/).
 ![usage example](https://github.com/taheroo/restaurant-explorer/blob/master/public/landing-page.jpg)
 
 ## UML class diagram
+
+The UML class diagram provides an overview of the system's architecture and relationships between different components.
 
 ![usage example](https://github.com/taheroo/restaurant-explorer/blob/master/public/uml-class-diagram.png)
 
 ## Development
 
-From your terminal:
+To set up the development environment for this project, follow the steps below:
+
+1. Setup Postgres instance locally using Docker:
+
+```sh
+docker compose up --detach dev-db
+```
+
+2. Setup the database by creating a .env file in the root directory and adding the following configuration:
+
+```sh
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/restaurant-explorer
+```
+
+3. Install the required dependencies:
 
 ```sh
 npm install
+```
+
+4. Setup the database:
+
+```sh
+npm run setup
+```
+
+5. Start the development server, which automatically rebuilds assets on file changes:
+
+```sh
 npm run dev
 ```
 
@@ -26,7 +53,7 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 ## Testing
 
-From your terminal:
+To run the test suite for the project, execute the following command:
 
 ```sh
 npm run test:e2e:dev
