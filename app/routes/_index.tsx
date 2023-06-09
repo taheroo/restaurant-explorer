@@ -3,31 +3,26 @@ import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { getRestaurants } from '~/models/restaurant.server';
 import { getUserByEmail } from '~/models/user.server';
-import RestaurantCard from '~/components/RestaurantCard';
+import RestaurantCardsList from '~/components/RestaurantCardsList';
 import Header from '~/components/Header';
 
 export const loader = async ({ request }: LoaderArgs) => {
-	const user = await getUserByEmail('alice@gmail.com');
-	if (!user) throw new Error('User not found');
+	const connectedUser = await getUserByEmail('alice@gmail.com');
+	if (!connectedUser) throw new Error('User not found');
 	const url = new URL(request.url);
-	const search = new URLSearchParams(url.search);
+	const searchParams = new URLSearchParams(url.search);
 	const query = {
-		name: search.get('name') || '',
-		cuisine: search.get('cuisine') || '',
-		myRestaurants: search.get('myRestaurants') || '',
-		userId: user.id,
+		name: searchParams.get('name') || '',
+		cuisine: searchParams.get('cuisine') || '',
+		myRestaurants: searchParams.get('myRestaurants') || '',
+		userId: connectedUser.id,
 	};
-	let restaurants = await getRestaurants(query);
-	return json({
-		restaurants,
-		user,
-		query,
-	});
+	const restaurants = await getRestaurants(query);
+	return json({ restaurants, connectedUser, query });
 };
 
 export default function RestaurantsRoute() {
-	const { restaurants, user, query } = useLoaderData<typeof loader>();
-	const connectedUser = user;
+	const { restaurants, connectedUser, query } = useLoaderData<typeof loader>();
 
 	return (
 		<div className='grid grid-cols-4'>
@@ -35,15 +30,7 @@ export default function RestaurantsRoute() {
 				<Header query={query} connectedUser={connectedUser} />
 			</div>
 			<div className='md:p-8 sm:p-4 col-span-4 grid md:grid-cols-4 sm:grid-cols-2 gap-4'>
-				{restaurants.map((restaurant) => (
-					<div
-						key={restaurant.id}
-						data-testid='restaurantCard'
-						className='col-span-1'
-					>
-						<RestaurantCard restaurant={restaurant} />
-					</div>
-				))}
+				<RestaurantCardsList restaurants={restaurants} />
 			</div>
 		</div>
 	);
