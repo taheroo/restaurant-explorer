@@ -9,7 +9,6 @@ import { createRestaurantReview } from '~/models/restaurantReview.server';
 import { getUserByEmail } from '~/models/user.server';
 import ReviewForm from '~/components/ReviewForm';
 import ReviewsList from '~/components/ReviewsList';
-import useOutsideClick from '~/hooks/useOutsideClick';
 import ProductCard from '~/components/ProductCard';
 import RestaurantDetailsHeader from '~/components/RestaurantDetailsHeader';
 
@@ -68,6 +67,8 @@ export default function RestaurantDetailsRoute() {
 	const { restaurant, user } = useLoaderData();
 	const productReviewsPopupRef = useRef(null);
 	const restaurantReviewsPopupRef = useRef(null);
+	const connectedUserId = user.id;
+
 	const [open, setOpen] = useState(false);
 	const [openRestaurantReviewForm, setOpenRestaurantReviewForm] =
 		useState(false);
@@ -75,7 +76,7 @@ export default function RestaurantDetailsRoute() {
 	const [openRestaurantReviews, setOpenRestaurantReviews] = useState(false);
 	const [selectedProduct, setSelectedProduct] =
 		useState<ProductWithRating | null>(null);
-	const connectedUserId = user.id;
+
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
@@ -109,17 +110,6 @@ export default function RestaurantDetailsRoute() {
 		setOpenRestaurantReviews(false);
 	};
 
-	useOutsideClick(
-		productReviewsPopupRef,
-		handleCloseProductReviews,
-		openProductReviews
-	);
-	useOutsideClick(
-		restaurantReviewsPopupRef,
-		handleCloseRestaurantReviews,
-		openRestaurantReviews
-	);
-
 	return (
 		<div>
 			<ReviewForm
@@ -144,11 +134,13 @@ export default function RestaurantDetailsRoute() {
 				reviews={selectedProduct?.productReviews || []}
 				isOpen={openProductReviews}
 				ref={productReviewsPopupRef}
+				handleCloseReviews={handleCloseProductReviews}
 			/>
 			<ReviewsList
 				reviews={restaurant?.restaurantReviews || []}
 				isOpen={openRestaurantReviews}
 				ref={restaurantReviewsPopupRef}
+				handleCloseReviews={handleCloseRestaurantReviews}
 			/>
 
 			<div className='md:p-8 sm:p-4 grid grid-cols-6 gap-4'>

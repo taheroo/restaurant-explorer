@@ -1,6 +1,7 @@
 import type { User } from '@prisma/client';
 import StarRating from './StarRating';
 import EmptyReviewsList from './EmptyReviewsList';
+import useOutsideClick from '~/hooks/useOutsideClick';
 
 interface Review {
 	id: string;
@@ -14,9 +15,17 @@ interface ReviewsListProps {
 	reviews: Review[];
 	isOpen: boolean;
 	ref: any;
+	handleCloseReviews: () => void;
 }
 
-function ReviewsList({ reviews, isOpen, ref }: ReviewsListProps) {
+function ReviewsList({
+	reviews,
+	isOpen,
+	ref,
+	handleCloseReviews,
+}: ReviewsListProps) {
+	useOutsideClick(ref, handleCloseReviews, isOpen);
+
 	return (
 		<div
 			style={{ display: isOpen ? 'block' : 'none', zIndex: 9999 }}
