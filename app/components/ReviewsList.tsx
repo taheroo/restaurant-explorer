@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import type { User } from '@prisma/client';
 import StarRating from './StarRating';
 import EmptyReviewsList from './EmptyReviewsList';
@@ -14,17 +15,16 @@ interface Review {
 interface ReviewsListProps {
 	reviews: Review[];
 	isOpen: boolean;
-	ref: any;
 	handleCloseReviews: () => void;
 }
 
 function ReviewsList({
 	reviews,
 	isOpen,
-	ref,
 	handleCloseReviews,
 }: ReviewsListProps) {
-	useOutsideClick(ref, handleCloseReviews, isOpen);
+	const popupRef = useRef(null);
+	useOutsideClick(popupRef, handleCloseReviews, isOpen);
 
 	return (
 		<div
@@ -32,7 +32,7 @@ function ReviewsList({
 			className='fixed hidden inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full'
 		>
 			<div
-				ref={ref}
+				ref={popupRef}
 				id='popup-content'
 				className='relative top-20 mx-auto p-5 border w-full shadow-lg rounded-md bg-white'
 			>

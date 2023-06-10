@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import type { LoaderArgs, ActionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
@@ -65,8 +65,6 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function RestaurantDetailsRoute() {
 	const { restaurant, user } = useLoaderData();
-	const productReviewsPopupRef = useRef(null);
-	const restaurantReviewsPopupRef = useRef(null);
 	const connectedUserId = user.id;
 
 	const [open, setOpen] = useState(false);
@@ -133,13 +131,11 @@ export default function RestaurantDetailsRoute() {
 			<ReviewsList
 				reviews={selectedProduct?.productReviews || []}
 				isOpen={openProductReviews}
-				ref={productReviewsPopupRef}
 				handleCloseReviews={handleCloseProductReviews}
 			/>
 			<ReviewsList
 				reviews={restaurant?.restaurantReviews || []}
 				isOpen={openRestaurantReviews}
-				ref={restaurantReviewsPopupRef}
 				handleCloseReviews={handleCloseRestaurantReviews}
 			/>
 
