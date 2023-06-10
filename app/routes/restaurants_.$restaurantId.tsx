@@ -11,7 +11,7 @@ import ReviewForm from '~/components/ReviewForm';
 import ReviewsList from '~/components/ReviewsList';
 import ProductCard from '~/components/ProductCard';
 import RestaurantDetailsHeader from '~/components/RestaurantDetailsHeader';
-
+import BackNavigation from '~/components/BackNavigation';
 interface ProductWithRating extends Product {
 	averageRating: number;
 	productReviews?: any;
@@ -145,13 +145,7 @@ export default function RestaurantDetailsRoute() {
 
 			<div className='md:p-8 sm:p-4 grid grid-cols-6 gap-4'>
 				<div className='col-span-6 '>
-					<a
-						data-testid='backToRestaurantsLink'
-						href='/restaurants'
-						className='text-indigo-600 text-sm font-medium'
-					>
-						&lt; Back to Restaurants
-					</a>
+					<BackNavigation href='/restaurants' text='Back to Restaurants' />
 					<RestaurantDetailsHeader
 						restaurant={restaurant}
 						handleClickOpenRestaurantReviews={handleClickOpenRestaurantReviews}
