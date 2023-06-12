@@ -6,7 +6,7 @@ interface ProductWithRating extends Product {
 
 interface ProductCardProps {
 	product: ProductWithRating;
-	handleClickOpen: () => void;
+	handleClickOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	setSelectedProduct: React.Dispatch<
 		React.SetStateAction<ProductWithRating | null>
 	>;
@@ -29,8 +29,8 @@ function ProductCard({
 		>
 			<button
 				data-testid='createProductReviewBtn'
-				onClick={() => {
-					handleClickOpen();
+				onClick={(event) => {
+					handleClickOpen(event);
 					setSelectedProduct(product);
 				}}
 				className='absolute end-4 top-4 z-10 rounded-full bg-white p-1.5 text-gray-900 transition hover:text-gray-900/75'

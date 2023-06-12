@@ -35,12 +35,21 @@ export default function RestaurantDetailsRoute() {
 	const [selectedProduct, setSelectedProduct] =
 		useState<ProductWithRating | null>(null);
 
-	const handleClickOpen = (productId: string) => {
+	const handleClickOpen = (
+		productId: string,
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		navigate(`/restaurants/${restaurant.id}/products/${productId}`);
+		event.preventDefault();
+		event.stopPropagation();
 		setOpenReviewForm(true);
 	};
-	const handleClickOpenRestaurantReviewForm = () => {
+	const handleClickOpenRestaurantReviewForm = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		navigate(`/restaurants/${restaurant.id}/review`);
+		event.preventDefault();
+		event.stopPropagation();
 		setOpenReviewForm(true);
 	};
 	const handleClickOpenProductReviews = (
@@ -94,7 +103,7 @@ export default function RestaurantDetailsRoute() {
 						<ProductCard
 							key={product.id}
 							product={product}
-							handleClickOpen={() => handleClickOpen(product.id)}
+							handleClickOpen={(event) => handleClickOpen(product.id, event)}
 							setSelectedProduct={setSelectedProduct}
 							handleClickOpenProductReviews={handleClickOpenProductReviews}
 						/>

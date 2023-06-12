@@ -1,4 +1,6 @@
 import { Form } from '@remix-run/react';
+import { useRef } from 'react';
+import useOutsideClick from '~/hooks/useOutsideClick';
 
 interface ReviewFormProps {
 	isOpen: boolean;
@@ -18,12 +20,18 @@ function ReviewForm({
 	handleClose,
 	errorMessage,
 }: ReviewFormProps) {
+	const popupRef = useRef(null);
+	useOutsideClick(popupRef, handleClose, isOpen);
 	return (
 		<div
 			style={{ display: isOpen ? 'block' : 'none', zIndex: 9999 }}
 			className='fixed hidden inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full'
 		>
-			<div className='relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white'>
+			<div
+				ref={popupRef}
+				id='popup-content'
+				className='relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white'
+			>
 				{errorMessage ? (
 					<div
 						className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative'
