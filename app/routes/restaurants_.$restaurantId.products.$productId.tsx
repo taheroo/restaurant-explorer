@@ -43,7 +43,7 @@ export const action = async ({ request }: ActionArgs) => {
 	return null;
 };
 
-export default function ProductReviews() {
+export default function ProductReview() {
 	const { productReview, productId, userId } = useLoaderData();
 	interface ContextType {
 		open: boolean;
