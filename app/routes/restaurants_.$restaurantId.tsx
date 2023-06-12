@@ -1,21 +1,10 @@
 import { useState } from 'react';
-import type { LoaderArgs, ActionArgs } from '@remix-run/node';
+import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import {
-	useLoaderData,
-	useActionData,
-	useNavigate,
-	Outlet,
-} from '@remix-run/react';
+import { useLoaderData, useNavigate, Outlet } from '@remix-run/react';
 import type { Product } from '@prisma/client';
 import { getRestaurantById } from '~/models/restaurant.server';
-import {
-	createProductReview,
-	getProductReviewByUserIdAndProductId,
-} from '~/models/productReview.server';
-import { createRestaurantReview } from '~/models/restaurantReview.server';
 import { getUserByEmail } from '~/models/user.server';
-import ReviewForm from '~/components/ReviewForm';
 import ReviewsList from '~/components/ReviewsList';
 import ProductCard from '~/components/ProductCard';
 import RestaurantDetailsHeader from '~/components/RestaurantDetailsHeader';
@@ -25,8 +14,7 @@ interface ProductWithRating extends Product {
 	productReviews?: any;
 }
 
-export const loader = async ({ params, request, context }: LoaderArgs) => {
-	console.log('debug:context--', context);
+export const loader = async ({ params }: LoaderArgs) => {
 	const { restaurantId } = params;
 	if (!restaurantId)
 		return json({ error: 'Restaurant not found' }, { status: 404 });
@@ -35,67 +23,13 @@ export const loader = async ({ params, request, context }: LoaderArgs) => {
 	return json({ restaurant, user });
 };
 
-export const action = async ({ request, context }: ActionArgs) => {
-	const formData = await request.formData();
-
-	const title = formData.get('title')?.toString();
-	const comment = formData.get('comment')?.toString();
-	const rating = formData.get('rating');
-	const productId = formData.get('productId')?.toString();
-	const userId = formData.get('userId')?.toString();
-	const restaurantId = formData.get('restaurantId')?.toString();
-	if (productId) {
-		if (!title || !comment || !rating || !productId || !userId)
-			return new Response('Missing fields', { status: 400 });
-
-		// Verify if user have already created a review for this product
-		const productReview = await getProductReviewByUserIdAndProductId(
-			userId,
-			productId
-		);
-		if (productReview) {
-			context.data = 'You have already created a review for this product';
-			console.log('debug:error, change UI');
-			return new Response(
-				'You have already created a review for this product',
-				{ status: 400 }
-			);
-		}
-
-		await createProductReview({
-			title,
-			comment,
-			rating: Number(rating),
-			productId,
-			userId,
-		});
-	}
-	if (restaurantId) {
-		if (!title || !comment || !rating || !restaurantId || !userId)
-			return new Response('Missing fields', { status: 400 });
-
-		await createRestaurantReview({
-			title,
-			comment,
-			rating: Number(rating),
-			userId,
-			restaurantId,
-		});
-	}
-
-	return null;
-};
-
 export default function RestaurantDetailsRoute() {
 	const { restaurant, user } = useLoaderData();
-	const actionData = useActionData<typeof action>();
 	const connectedUserId = user.id;
 
 	const navigate = useNavigate();
 
-	const [open, setOpen] = useState(false);
-	const [openRestaurantReviewForm, setOpenRestaurantReviewForm] =
-		useState(false);
+	const [open, setOpenReviewForm] = useState(false);
 	const [openProductReviews, setOpenProductReviews] = useState(false);
 	const [openRestaurantReviews, setOpenRestaurantReviews] = useState(false);
 	const [selectedProduct, setSelectedProduct] =
@@ -103,13 +37,11 @@ export default function RestaurantDetailsRoute() {
 
 	const handleClickOpen = (productId: string) => {
 		navigate(`/restaurants/${restaurant.id}/products/${productId}`);
-		setOpen(true);
+		setOpenReviewForm(true);
 	};
 	const handleClickOpenRestaurantReviewForm = () => {
-		setOpenRestaurantReviewForm(true);
-	};
-	const handleCloseRestaurantReviewForm = () => {
-		setOpenRestaurantReviewForm(false);
+		navigate(`/restaurants/${restaurant.id}/review`);
+		setOpenReviewForm(true);
 	};
 	const handleClickOpenProductReviews = (
 		event: React.MouseEvent<HTMLButtonElement>
@@ -134,17 +66,7 @@ export default function RestaurantDetailsRoute() {
 
 	return (
 		<div>
-			<Outlet context={{ open, setOpen }} />
-			<ReviewForm
-				isOpen={openRestaurantReviewForm}
-				userId={connectedUserId}
-				targetReview={{
-					name: 'restaurantId',
-					value: restaurant.id,
-				}}
-				handleClose={() => handleCloseRestaurantReviewForm()}
-				errorMessage={String(actionData || '')}
-			/>
+			<Outlet context={{ open, setOpenReviewForm, userId: connectedUserId }} />
 			<ReviewsList
 				reviews={selectedProduct?.productReviews || []}
 				isOpen={openProductReviews}

@@ -3,22 +3,24 @@ import { json } from '@remix-run/node';
 import { useLoaderData, useOutletContext } from '@remix-run/react';
 import { getUserByEmail } from '~/models/user.server';
 import {
-	createProductReview,
-	getProductReviewByUserIdAndProductId,
-} from '~/models/productReview.server';
+	createRestaurantReview,
+	getRestaurantReviewByUserIdAndRestaurantId,
+} from '~/models/restaurantReview.server';
+
 import ReviewForm from '~/components/ReviewForm';
 
 export const loader = async ({ params }: LoaderArgs) => {
-	const { productId } = params;
+	const { restaurantId } = params;
 	const user = await getUserByEmail('alice@gmail.com');
-	if (!productId) return json({ error: 'Product not found' }, { status: 404 });
+	if (!restaurantId)
+		return json({ error: 'Restaurant not found' }, { status: 404 });
 	if (!user) return json({ error: 'User not found' }, { status: 404 });
 	const userId = user.id;
-	const productReview = await getProductReviewByUserIdAndProductId(
+	const restaurantReview = await getRestaurantReviewByUserIdAndRestaurantId(
 		userId,
-		productId
+		restaurantId
 	);
-	return json({ productReview, productId });
+	return json({ restaurantReview, restaurantId, userId });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -27,33 +29,32 @@ export const action = async ({ request }: ActionArgs) => {
 	const title = formData.get('title')?.toString();
 	const comment = formData.get('comment')?.toString();
 	const rating = formData.get('rating');
-	const productId = formData.get('productId')?.toString();
+	const restaurantId = formData.get('restaurantId')?.toString();
 	const userId = formData.get('userId')?.toString();
-	if (!title || !comment || !rating || !productId || !userId)
+	if (!title || !comment || !rating || !restaurantId || !userId)
 		return new Response('Missing fields', { status: 400 });
 
-	await createProductReview({
+	await createRestaurantReview({
 		title,
 		comment,
 		rating: Number(rating),
-		productId,
+		restaurantId,
 		userId,
 	});
 
 	return null;
 };
 
-export default function ProductReviewRoute() {
-	const { productReview, productId } = useLoaderData();
+export default function RestaurantReviewRoute() {
+	const { restaurantReview, restaurantId, userId } = useLoaderData();
 	interface ContextType {
 		open: boolean;
 		setOpenReviewForm: (open: boolean) => void;
-		userId: string;
 	}
-	const { open, setOpenReviewForm, userId } = useOutletContext<ContextType>();
+	const { open, setOpenReviewForm } = useOutletContext<ContextType>();
 	const handleClose = () => setOpenReviewForm(false);
-	const errorMessage = productReview
-		? 'You have already created a review for this product'
+	const errorMessage = restaurantReview
+		? 'You have already created a review for this restaurant'
 		: '';
 
 	return (
@@ -61,8 +62,8 @@ export default function ProductReviewRoute() {
 			isOpen={open}
 			userId={userId}
 			targetReview={{
-				name: 'productId',
-				value: productId,
+				name: 'restaurantId',
+				value: restaurantId,
 			}}
 			handleClose={handleClose}
 			errorMessage={errorMessage}

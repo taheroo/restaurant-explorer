@@ -77,13 +77,20 @@ describe('Test display Products and display/create Reviews', () => {
 	});
 
 	it('should create a restaurant review', () => {
+		cy.intercept(`/restaurants/**`).as('getRestaurantReview');
 		cy.get('[data-testid="createRestaurantReviewBtn"]').first().click();
-		cy.get('[data-testid="title-restaurantId"]').type('Amazing');
-		cy.get('[data-testid="comment-restaurantId"]').type(
-			'I love this restaurant, it is great!'
-		);
-		cy.get('[data-testid="rating-restaurantId"]').select('5');
-		cy.get('[data-testid="submitBtn-restaurantId"]').click();
+		cy.wait('@getRestaurantReview').then(({ response }) => {
+			if (response && response.body && response.body.restaurantReview) {
+				cy.get('[data-testid="error-restaurantId"]').should('be.visible');
+				return;
+			}
+			cy.get('[data-testid="title-restaurantId"]').type('Amazing');
+			cy.get('[data-testid="comment-restaurantId"]').type(
+				'I love this restaurant, it is great!'
+			);
+			cy.get('[data-testid="rating-restaurantId"]').select('5');
+			cy.get('[data-testid="submitBtn-restaurantId"]').click();
+		});
 	});
 
 	it('should display restaurant reviews', () => {
