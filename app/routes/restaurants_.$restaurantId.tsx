@@ -1,10 +1,18 @@
 import { useState } from 'react';
 import type { LoaderArgs, ActionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import {
+	useLoaderData,
+	useActionData,
+	useNavigate,
+	Outlet,
+} from '@remix-run/react';
 import type { Product } from '@prisma/client';
 import { getRestaurantById } from '~/models/restaurant.server';
-import { createProductReview } from '~/models/productReview.server';
+import {
+	createProductReview,
+	getProductReviewByUserIdAndProductId,
+} from '~/models/productReview.server';
 import { createRestaurantReview } from '~/models/restaurantReview.server';
 import { getUserByEmail } from '~/models/user.server';
 import ReviewForm from '~/components/ReviewForm';
@@ -17,7 +25,8 @@ interface ProductWithRating extends Product {
 	productReviews?: any;
 }
 
-export const loader = async ({ params }: LoaderArgs) => {
+export const loader = async ({ params, request, context }: LoaderArgs) => {
+	console.log('debug:context--', context);
 	const { restaurantId } = params;
 	if (!restaurantId)
 		return json({ error: 'Restaurant not found' }, { status: 404 });
@@ -26,7 +35,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 	return json({ restaurant, user });
 };
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request, context }: ActionArgs) => {
 	const formData = await request.formData();
 
 	const title = formData.get('title')?.toString();
@@ -38,6 +47,20 @@ export const action = async ({ request }: ActionArgs) => {
 	if (productId) {
 		if (!title || !comment || !rating || !productId || !userId)
 			return new Response('Missing fields', { status: 400 });
+
+		// Verify if user have already created a review for this product
+		const productReview = await getProductReviewByUserIdAndProductId(
+			userId,
+			productId
+		);
+		if (productReview) {
+			context.data = 'You have already created a review for this product';
+			console.log('debug:error, change UI');
+			return new Response(
+				'You have already created a review for this product',
+				{ status: 400 }
+			);
+		}
 
 		await createProductReview({
 			title,
@@ -65,7 +88,10 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function RestaurantDetailsRoute() {
 	const { restaurant, user } = useLoaderData();
+	const actionData = useActionData<typeof action>();
 	const connectedUserId = user.id;
+
+	const navigate = useNavigate();
 
 	const [open, setOpen] = useState(false);
 	const [openRestaurantReviewForm, setOpenRestaurantReviewForm] =
@@ -75,11 +101,9 @@ export default function RestaurantDetailsRoute() {
 	const [selectedProduct, setSelectedProduct] =
 		useState<ProductWithRating | null>(null);
 
-	const handleClickOpen = () => {
+	const handleClickOpen = (productId: string) => {
+		navigate(`/restaurants/${restaurant.id}/products/${productId}`);
 		setOpen(true);
-	};
-	const handleClose = () => {
-		setOpen(false);
 	};
 	const handleClickOpenRestaurantReviewForm = () => {
 		setOpenRestaurantReviewForm(true);
@@ -110,15 +134,7 @@ export default function RestaurantDetailsRoute() {
 
 	return (
 		<div>
-			<ReviewForm
-				isOpen={open}
-				userId={connectedUserId}
-				targetReview={{
-					name: 'productId',
-					value: selectedProduct ? selectedProduct.id : '',
-				}}
-				handleClose={handleClose}
-			/>
+			<Outlet context={{ open, setOpen }} />
 			<ReviewForm
 				isOpen={openRestaurantReviewForm}
 				userId={connectedUserId}
@@ -126,7 +142,8 @@ export default function RestaurantDetailsRoute() {
 					name: 'restaurantId',
 					value: restaurant.id,
 				}}
-				handleClose={handleCloseRestaurantReviewForm}
+				handleClose={() => handleCloseRestaurantReviewForm()}
+				errorMessage={String(actionData || '')}
 			/>
 			<ReviewsList
 				reviews={selectedProduct?.productReviews || []}
@@ -155,7 +172,7 @@ export default function RestaurantDetailsRoute() {
 						<ProductCard
 							key={product.id}
 							product={product}
-							handleClickOpen={handleClickOpen}
+							handleClickOpen={() => handleClickOpen(product.id)}
 							setSelectedProduct={setSelectedProduct}
 							handleClickOpenProductReviews={handleClickOpenProductReviews}
 						/>

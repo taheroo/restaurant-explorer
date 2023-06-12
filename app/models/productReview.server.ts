@@ -12,3 +12,16 @@ export async function createProductReview(
 	});
 	return review;
 }
+
+export async function getProductReviewByUserIdAndProductId(
+	userId: string,
+	productId: string
+) {
+	const review = await db.productReview.findFirst({
+		where: {
+			userId,
+			productId,
+		},
+	});
+	return review;
+}

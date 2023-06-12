@@ -55,13 +55,20 @@ describe('Test display Products and display/create Reviews', () => {
 	});
 
 	it('should create a product review', () => {
+		cy.intercept(`/restaurants/*/products/*`).as('getProductReview');
 		cy.get('[data-testid="createProductReviewBtn"]').first().click();
-		cy.get('[data-testid="title-productId"]').type('Delicious');
-		cy.get('[data-testid="comment-productId"]').type(
-			'I love this food, it is great!'
-		);
-		cy.get('[data-testid="rating-productId"]').select('5');
-		cy.get('[data-testid="submitBtn-productId"]').click();
+		cy.wait('@getProductReview').then(({ response }) => {
+			if (response && response.body && response.body.productReview) {
+				cy.get('[data-testid="error-productId"]').should('be.visible');
+				return;
+			}
+			cy.get('[data-testid="title-productId"]').type('Delicious');
+			cy.get('[data-testid="comment-productId"]').type(
+				'I love this food, it is great!'
+			);
+			cy.get('[data-testid="rating-productId"]').select('5');
+			cy.get('[data-testid="submitBtn-productId"]').click();
+		});
 	});
 
 	it('should display product reviews', () => {
