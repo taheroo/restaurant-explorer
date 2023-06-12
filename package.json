@@ -3,7 +3,7 @@
 	"sideEffects": false,
 	"scripts": {
 		"build": "npm run setup && remix build",
-		"dev": "remix dev",
+		"dev": "npm run db:dev:up && remix dev",
 		"start": "remix-serve build",
 		"test:e2e:dev": "start-server-and-test dev http://localhost:3000 \"npx cypress open\"",
 		"setup": "prisma generate && prisma migrate deploy && prisma db seed",
