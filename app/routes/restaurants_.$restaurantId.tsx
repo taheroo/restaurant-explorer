@@ -9,6 +9,8 @@ import ReviewsList from '~/components/ReviewsList';
 import ProductCard from '~/components/ProductCard';
 import RestaurantDetailsHeader from '~/components/RestaurantDetailsHeader';
 import BackNavigation from '~/components/BackNavigation';
+import { useModal } from '~/hooks/useModal';
+
 interface ProductWithRating extends Product {
 	averageRating: number;
 	productReviews?: any;
@@ -28,10 +30,18 @@ export default function RestaurantDetailsRoute() {
 	const connectedUserId = user.id;
 
 	const navigate = useNavigate();
-
 	const [open, setOpenReviewForm] = useState(false);
-	const [openProductReviews, setOpenProductReviews] = useState(false);
-	const [openRestaurantReviews, setOpenRestaurantReviews] = useState(false);
+	const {
+		isOpen: openProductReviews,
+		openModal: openProductReviewsModal,
+		closeModal: closeProductReviewsModal,
+	} = useModal();
+	const {
+		isOpen: openRestaurantReviews,
+		openModal: openRestaurantReviewsModal,
+		closeModal: closeRestaurantReviewsModal,
+	} = useModal();
+
 	const [selectedProduct, setSelectedProduct] =
 		useState<ProductWithRating | null>(null);
 
@@ -57,20 +67,20 @@ export default function RestaurantDetailsRoute() {
 	) => {
 		event.preventDefault();
 		event.stopPropagation();
-		setOpenProductReviews(true);
+		openProductReviewsModal();
 	};
 	const handleCloseProductReviews = () => {
-		setOpenProductReviews(false);
+		closeProductReviewsModal();
 	};
 	const handleClickOpenRestaurantReviews = (
 		event: React.MouseEvent<HTMLButtonElement>
 	) => {
 		event.preventDefault();
 		event.stopPropagation();
-		setOpenRestaurantReviews(true);
+		openRestaurantReviewsModal();
 	};
 	const handleCloseRestaurantReviews = () => {
-		setOpenRestaurantReviews(false);
+		closeRestaurantReviewsModal();
 	};
 
 	return (
