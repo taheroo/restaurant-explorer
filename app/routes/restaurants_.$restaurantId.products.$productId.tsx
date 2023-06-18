@@ -55,7 +55,6 @@ export default function ProductReviewRoute() {
 	const errorMessage = productReview
 		? 'You have already created a review for this product'
 		: '';
-	console.log('debug:ProductReviewRoute:open', open);
 	return (
 		<ReviewForm
 			isOpen={open}
