@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { LoaderArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { useLoaderData, useNavigate, Outlet } from '@remix-run/react';
+import { useLoaderData, Outlet } from '@remix-run/react';
 import type { Product } from '@prisma/client';
 import { getRestaurantById } from '~/models/restaurant.server';
 import { getUserByEmail } from '~/models/user.server';
@@ -9,7 +9,7 @@ import ReviewsList from '~/components/ReviewsList';
 import ProductCard from '~/components/ProductCard';
 import RestaurantDetailsHeader from '~/components/RestaurantDetailsHeader';
 import BackNavigation from '~/components/BackNavigation';
-import { useModal } from '~/hooks/useModal';
+import { useModalHandlers } from '~/hooks/useModalHandlers';
 
 interface ProductWithRating extends Product {
 	averageRating: number;
@@ -28,64 +28,20 @@ export const loader = async ({ params }: LoaderArgs) => {
 export default function RestaurantDetailsRoute() {
 	const { restaurant, user } = useLoaderData();
 	const connectedUserId = user.id;
-
-	const navigate = useNavigate();
 	const {
-		isOpen: openReviewForm,
-		openModal: openReviewFormModal,
-		closeModal: closeReviewFormModal,
-	} = useModal();
-	const {
-		isOpen: openProductReviews,
-		openModal: openProductReviewsModal,
-		closeModal: closeProductReviewsModal,
-	} = useModal();
-	const {
-		isOpen: openRestaurantReviews,
-		openModal: openRestaurantReviewsModal,
-		closeModal: closeRestaurantReviewsModal,
-	} = useModal();
-
+		openReviewForm,
+		openProductReviews,
+		openRestaurantReviews,
+		handleClickOpenProductReviewForm,
+		handleClickOpenRestaurantReviewForm,
+		handleClickOpenProductReviews,
+		handleCloseProductReviews,
+		handleClickOpenRestaurantReviews,
+		handleCloseRestaurantReviews,
+		closeReviewFormModal,
+	} = useModalHandlers();
 	const [selectedProduct, setSelectedProduct] =
 		useState<ProductWithRating | null>(null);
-
-	const handleClickOpen = (
-		productId: string,
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		navigate(`/restaurants/${restaurant.id}/products/${productId}`);
-		event.preventDefault();
-		event.stopPropagation();
-		openReviewFormModal();
-	};
-	const handleClickOpenRestaurantReviewForm = (
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		navigate(`/restaurants/${restaurant.id}/review`);
-		event.preventDefault();
-		event.stopPropagation();
-		openReviewFormModal();
-	};
-	const handleClickOpenProductReviews = (
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		event.preventDefault();
-		event.stopPropagation();
-		openProductReviewsModal();
-	};
-	const handleCloseProductReviews = () => {
-		closeProductReviewsModal();
-	};
-	const handleClickOpenRestaurantReviews = (
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		event.preventDefault();
-		event.stopPropagation();
-		openRestaurantReviewsModal();
-	};
-	const handleCloseRestaurantReviews = () => {
-		closeRestaurantReviewsModal();
-	};
 
 	return (
 		<div>
@@ -113,8 +69,8 @@ export default function RestaurantDetailsRoute() {
 					<RestaurantDetailsHeader
 						restaurant={restaurant}
 						handleClickOpenRestaurantReviews={handleClickOpenRestaurantReviews}
-						handleClickOpenRestaurantReviewForm={
-							handleClickOpenRestaurantReviewForm
+						handleClickOpenRestaurantReviewForm={(event) =>
+							handleClickOpenRestaurantReviewForm(event, restaurant.id)
 						}
 					/>
 				</div>
@@ -123,7 +79,13 @@ export default function RestaurantDetailsRoute() {
 						<ProductCard
 							key={product.id}
 							product={product}
-							handleClickOpen={(event) => handleClickOpen(product.id, event)}
+							handleClickOpen={(event) =>
+								handleClickOpenProductReviewForm(
+									event,
+									product.id,
+									restaurant.id
+								)
+							}
 							setSelectedProduct={setSelectedProduct}
 							handleClickOpenProductReviews={handleClickOpenProductReviews}
 						/>
