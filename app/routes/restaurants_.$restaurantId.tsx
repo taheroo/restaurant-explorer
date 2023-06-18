@@ -30,7 +30,11 @@ export default function RestaurantDetailsRoute() {
 	const connectedUserId = user.id;
 
 	const navigate = useNavigate();
-	const [open, setOpenReviewForm] = useState(false);
+	const {
+		isOpen: openReviewForm,
+		openModal: openReviewFormModal,
+		closeModal: closeReviewFormModal,
+	} = useModal();
 	const {
 		isOpen: openProductReviews,
 		openModal: openProductReviewsModal,
@@ -52,7 +56,7 @@ export default function RestaurantDetailsRoute() {
 		navigate(`/restaurants/${restaurant.id}/products/${productId}`);
 		event.preventDefault();
 		event.stopPropagation();
-		setOpenReviewForm(true);
+		openReviewFormModal();
 	};
 	const handleClickOpenRestaurantReviewForm = (
 		event: React.MouseEvent<HTMLButtonElement>
@@ -60,7 +64,7 @@ export default function RestaurantDetailsRoute() {
 		navigate(`/restaurants/${restaurant.id}/review`);
 		event.preventDefault();
 		event.stopPropagation();
-		setOpenReviewForm(true);
+		openReviewFormModal();
 	};
 	const handleClickOpenProductReviews = (
 		event: React.MouseEvent<HTMLButtonElement>
@@ -85,7 +89,13 @@ export default function RestaurantDetailsRoute() {
 
 	return (
 		<div>
-			<Outlet context={{ open, setOpenReviewForm, userId: connectedUserId }} />
+			<Outlet
+				context={{
+					open: openReviewForm,
+					closeReviewFormModal,
+					userId: connectedUserId,
+				}}
+			/>
 			<ReviewsList
 				reviews={selectedProduct?.productReviews || []}
 				isOpen={openProductReviews}

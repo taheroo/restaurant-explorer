@@ -47,15 +47,15 @@ export default function ProductReviewRoute() {
 	const { productReview, productId } = useLoaderData();
 	interface ContextType {
 		open: boolean;
-		setOpenReviewForm: (open: boolean) => void;
+		closeReviewFormModal: () => void;
 		userId: string;
 	}
-	const { open, setOpenReviewForm, userId } = useOutletContext<ContextType>();
-	const handleClose = () => setOpenReviewForm(false);
+	const { open, closeReviewFormModal, userId } =
+		useOutletContext<ContextType>();
 	const errorMessage = productReview
 		? 'You have already created a review for this product'
 		: '';
-
+	console.log('debug:ProductReviewRoute:open', open);
 	return (
 		<ReviewForm
 			isOpen={open}
@@ -64,7 +64,7 @@ export default function ProductReviewRoute() {
 				name: 'productId',
 				value: productId,
 			}}
-			handleClose={handleClose}
+			handleClose={closeReviewFormModal}
 			errorMessage={errorMessage}
 		/>
 	);

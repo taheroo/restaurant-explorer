@@ -49,10 +49,9 @@ export default function RestaurantReviewRoute() {
 	const { restaurantReview, restaurantId, userId } = useLoaderData();
 	interface ContextType {
 		open: boolean;
-		setOpenReviewForm: (open: boolean) => void;
+		closeReviewFormModal: () => void;
 	}
-	const { open, setOpenReviewForm } = useOutletContext<ContextType>();
-	const handleClose = () => setOpenReviewForm(false);
+	const { open, closeReviewFormModal } = useOutletContext<ContextType>();
 	const errorMessage = restaurantReview
 		? 'You have already created a review for this restaurant'
 		: '';
@@ -65,7 +64,7 @@ export default function RestaurantReviewRoute() {
 				name: 'restaurantId',
 				value: restaurantId,
 			}}
-			handleClose={handleClose}
+			handleClose={closeReviewFormModal}
 			errorMessage={errorMessage}
 		/>
 	);
